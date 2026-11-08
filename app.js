@@ -7,6 +7,7 @@ const examples = {
 };
 
 const $ = id => document.getElementById(id);
+const SVG_NS = 'http://www.w3.org/2000/svg';
 let trace = null;
 let selected = 0;
 let aiEnabled = false;
@@ -19,6 +20,58 @@ function el(tag, text, className) {
 }
 
 function values(env, names) { return names.map(name => `${name} = ${env[name]}`).join(' · '); }
+
+function svg(tag, attrs = {}, content) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, String(value));
+  if (content !== undefined) node.textContent = String(content);
+  return node;
+}
+
+function setupChart() {
+  const picker = $('chart-variable');
+  picker.replaceChildren();
+  $('chart-card').hidden = trace.rows.length === 0;
+  if (!trace.rows.length) return;
+  for (const name of trace.variables) picker.append(el('option', name));
+  picker.value = trace.variables.find(name => name !== trace.loopVar) || trace.loopVar;
+}
+
+function renderChart() {
+  if (!trace?.rows.length) return;
+  const name = $('chart-variable').value;
+  const chart = $('variable-chart');
+  chart.replaceChildren();
+  const compact = window.matchMedia('(max-width: 720px)').matches;
+  chart.setAttribute('viewBox', compact ? '0 0 360 235' : '0 0 800 270');
+  chart.setAttribute('aria-label', `${name} 在每轮循环体执行后的变化图`);
+  const values = trace.rows.map(row => row.afterBody[name]);
+  let min = Math.min(0, ...values), max = Math.max(0, ...values);
+  if (min === max) { min -= 1; max += 1; }
+  const left = compact ? 43 : 70, right = compact ? 335 : 760;
+  const top = compact ? 30 : 34, bottom = compact ? 179 : 218;
+  const x = index => values.length === 1 ? (left + right) / 2 : left + index * (right - left) / (values.length - 1);
+  const y = value => bottom - (value - min) * (bottom - top) / (max - min);
+  for (const tick of [...new Set([min, 0, max])].sort((a, b) => a - b)) {
+    const yy = y(tick);
+    chart.append(svg('line', { x1: left, y1: yy, x2: right, y2: yy, class: 'chart-grid' }));
+    chart.append(svg('text', { x: left - 12, y: yy + 4, 'text-anchor': 'end' }, tick));
+  }
+  chart.append(svg('line', { x1: left, y1: top, x2: left, y2: bottom, class: 'chart-axis' }));
+  chart.append(svg('line', { x1: left, y1: bottom, x2: right, y2: bottom, class: 'chart-axis' }));
+  const tickIndexes = [...new Set([0, Math.floor((values.length - 1) / 2), values.length - 1])];
+  for (const index of tickIndexes) chart.append(svg('text', { x: x(index), y: bottom + 24, 'text-anchor': 'middle' }, index + 1));
+  chart.append(svg('text', { x: right, y: bottom + 43, 'text-anchor': 'end' }, '轮次'));
+  if (values.length > 1) chart.append(svg('polyline', { points: values.map((value, index) => `${x(index)},${y(value)}`).join(' '), class: 'chart-line' }));
+  values.forEach((value, index) => {
+    const dot = svg('circle', { cx: x(index), cy: y(value), r: index === selected ? (compact ? 9 : 7) : (compact ? 8 : 6), class: `chart-dot${index === selected ? ' active' : ''}`, tabindex: 0, role: 'button', 'aria-label': `第 ${index + 1} 轮，${name} 为 ${value}` });
+    dot.addEventListener('click', () => chooseRow(index));
+    dot.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseRow(index); } });
+    chart.append(dot);
+  });
+  chart.append(svg('text', { x: Math.max(left + 20, Math.min(right - 20, x(selected))), y: Math.max(20, y(values[selected]) - 16), class: 'chart-point-label', 'text-anchor': 'middle' }, `${name}=${values[selected]}`));
+  $('chart-caption').textContent = `第 ${selected + 1} 轮循环体执行后：${name} = ${values[selected]}。`;
+}
 
 function showError(message) {
   $('error-message').textContent = message;
@@ -72,6 +125,7 @@ function chooseRow(index) {
   $('prev-round').disabled = index === 0;
   $('next-round').disabled = index === trace.rows.length - 1;
   $('ai-explanation').textContent = '';
+  renderChart();
 }
 
 function setupQuiz() {
@@ -99,6 +153,7 @@ function run() {
     $('empty-state').hidden = true;
     $('results').hidden = false;
     buildTable();
+    setupChart();
     if (trace.rows.length) chooseRow(0);
     else {
       $('detail-title').textContent = '循环未执行';
@@ -140,6 +195,8 @@ $('run-button').addEventListener('click', run);
 $('prev-round').addEventListener('click', () => { if (selected > 0) chooseRow(selected - 1); });
 $('next-round').addEventListener('click', () => { if (trace && selected < trace.rows.length - 1) chooseRow(selected + 1); });
 $('ai-button').addEventListener('click', explainWithAi);
+$('chart-variable').addEventListener('change', renderChart);
+window.matchMedia('(max-width: 720px)').addEventListener('change', renderChart);
 $('quiz-form').addEventListener('submit', event => {
   event.preventDefault();
   const answer = Number($('quiz-answer').value);
