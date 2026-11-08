@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>逐轮看懂 Java for 循环</title>
+  <link rel="stylesheet" href="./styles.css">
+<style>.ai-block{display:none}</style>
+</head>
+<body data-static="true">
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark">{ }</span><span>循环拆解室</span></div>
+    <span class="prototype">试用原型 · v0.1</span>
+  </header>
+
+  <main class="layout">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">JAVA FOR 循环 · 初学者练习</p>
+      <h1 id="page-title">每一轮，<br><span>变量到底怎么变？</span></h1>
+      <p class="intro-text">粘贴一段简单的 Java 循环，先看完整逐轮变化表，再选一轮慢慢拆解，最后自己猜一次。</p>
+      <div class="flow" aria-label="学习流程"><span>01 输入代码</span><span>02 看变化</span><span>03 自己试</span></div>
+      <div class="scope-note"><strong>首版范围</strong><p>支持一个 <code>for</code> 循环、整数变量、基础运算与简单赋值；最多 50 轮。复杂 Java 语法会明确提示，避免给出猜测结果。</p></div>
+    </section>
+
+    <section class="workspace" aria-label="代码与结果">
+      <div class="card editor-card">
+        <div class="card-head"><div><p class="section-kicker">第一步</p><h2>输入一段循环</h2></div><span class="lang-tag">Java</span></div>
+        <label class="sr-only" for="code-input">Java 循环代码</label>
+        <textarea id="code-input" spellcheck="false">int sum = 0;
+for (int i = 1; i &lt;= 5; i++) {
+    sum += i;
+}</textarea>
+        <div class="editor-actions"><div class="samples"><span>试试示例：</span><button type="button" data-example="sum">累加 1 到 5</button><button type="button" data-example="step">每次加 2</button><button type="button" data-example="down">倒序输出</button></div><button class="primary" id="run-button" type="button">生成逐轮表 <span aria-hidden="true">→</span></button></div>
+        <p id="error-message" class="error-message" role="alert" hidden></p>
+      </div>
+
+      <div id="empty-state" class="card empty-state"><span class="empty-icon">↻</span><h2>从一个小循环开始</h2><p>点击“生成逐轮表”，看清判断、执行和更新各发生在什么时候。</p></div>
+
+      <section id="results" hidden aria-label="逐轮结果">
+        <div class="card result-card">
+          <div class="card-head"><div><p class="section-kicker">第二步</p><h2>完整逐轮变化表</h2></div><span id="round-count" class="count-badge"></span></div>
+          <p class="table-help">点击任意一行查看这一轮的解释。每个变量按“进入本轮 → 循环体后 → 更新后”展示。</p>
+          <div class="table-wrap"><table id="trace-table"><thead></thead><tbody></tbody></table></div>
+          <p id="stop-note" class="stop-note"></p>
+        </div>
+
+        <div class="two-column">
+          <div class="card detail-card">
+            <div class="card-head"><div><p class="section-kicker">拆开来看</p><h2 id="detail-title">第 1 轮</h2></div><div class="step-controls"><button id="prev-round" type="button" aria-label="上一轮">←</button><button id="next-round" type="button" aria-label="下一轮">→</button></div></div>
+            <div id="detail-stages" class="stages"></div>
+            <p id="plain-explanation" class="plain-explanation"></p>
+            <div class="ai-block"><div class="ai-line"><strong>AI 换种讲法</strong><span id="ai-status"></span></div><button id="ai-button" type="button" disabled>解释这一轮</button><p id="ai-explanation" aria-live="polite"></p></div>
+          </div>
+          <div class="card quiz-card">
+            <p class="section-kicker">第三步</p><h2>先猜，再看答案</h2>
+            <p id="quiz-question"></p>
+            <form id="quiz-form"><label for="quiz-answer">你的答案</label><div class="answer-row"><input id="quiz-answer" type="number" inputmode="numeric" step="1" required autocomplete="off"><button class="secondary" type="submit">检查</button></div></form>
+            <p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p>
+            <p class="quiz-note">答错也没关系，回到表格对照“进入”和“循环体后”两列。</p>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <footer>本轮试用只验证逐轮表与自测；页面不会保存输入代码和练习答案。</footer>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
