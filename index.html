@@ -10,14 +10,14 @@
 <body data-static="true">
   <header class="site-header">
     <div class="brand"><span class="brand-mark">{ }</span><span>循环拆解室</span></div>
-    <span class="prototype">试用原型 · v0.1</span>
+    <span class="prototype">试用原型 · v0.2</span>
   </header>
 
   <main class="layout">
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">JAVA FOR 循环 · 初学者练习</p>
       <h1 id="page-title">每一轮，<br><span>变量到底怎么变？</span></h1>
-      <p class="intro-text">粘贴一段简单的 Java 循环，先看完整逐轮变化表，再选一轮慢慢拆解，最后自己猜一次。</p>
+      <p class="intro-text">粘贴一段简单的 Java 循环，对照逐轮表和变量变化图，再选一轮慢慢拆解，最后自己猜一次。</p>
       <div class="flow" aria-label="学习流程"><span>01 输入代码</span><span>02 看变化</span><span>03 自己试</span></div>
       <div class="scope-note"><strong>首版范围</strong><p>支持一个 <code>for</code> 循环、整数变量、基础运算与简单赋值；最多 50 轮。复杂 Java 语法会明确提示，避免给出猜测结果。</p></div>
     </section>
@@ -42,6 +42,13 @@ for (int i = 1; i &lt;= 5; i++) {
           <p class="table-help">点击任意一行查看这一轮的解释。每个变量按“进入本轮 → 循环体后 → 更新后”展示。</p>
           <div class="table-wrap"><table id="trace-table"><thead></thead><tbody></tbody></table></div>
           <p id="stop-note" class="stop-note"></p>
+        </div>
+
+        <div class="card chart-card" id="chart-card">
+          <div class="card-head"><div><p class="section-kicker">根据试用反馈新增</p><h2>变量变化图</h2></div><label class="chart-picker" for="chart-variable">查看变量 <select id="chart-variable"></select></label></div>
+          <p class="table-help">横轴是轮次，纵轴是该变量在每轮<strong>循环体执行后</strong>的值。点击图上的点，可对照表格和下方解释。</p>
+          <div class="chart-wrap"><svg id="variable-chart" viewBox="0 0 800 270" role="img" aria-label="变量逐轮变化图"></svg></div>
+          <p id="chart-caption" class="chart-caption" aria-live="polite"></p>
         </div>
 
         <div class="two-column">
